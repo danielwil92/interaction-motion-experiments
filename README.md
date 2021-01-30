@@ -6,7 +6,7 @@ TODO: Add Description to the Project
 
 ## Exercises
 ### Eyes on the Price:
-8 panels in a 3x3 grid, with the center empty. In the center there should be a circle. The prototype would like to demonstrate a few pieces of interactivity. [Check it out.](/eyes-on-the-price.html)
+8 panels in a 3x3 grid, with the center empty. In the center there should be a circle. The prototype would like to demonstrate a few pieces of interactivity. [Check it out.](https://danielwil92.github.io/interaction-motion-experiments/eyes-on-the-price.html)
 
 
 ### Development server
