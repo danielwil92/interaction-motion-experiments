@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack serve --config ./config/webpack.dev.js --progress",
-    "deplot": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.js --progress",
+    "deploy": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.js --progress",
     "lint:css": "npx stylelint 'src/scss/**/*.scss' --syntax scss",
     "lint:js": "npx eslint 'src/js/**/*.js' --color"
   },
