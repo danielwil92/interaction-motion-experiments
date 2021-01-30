@@ -1,7 +1,7 @@
 const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 
-const OUTPUT_DIR = 'docs';
+const OUTPUT_DIR = 'dist';
 
 // only form HtmlWebPackPlugin
 const config = [
