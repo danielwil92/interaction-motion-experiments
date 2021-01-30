@@ -1,0 +1,16 @@
+block variables
+- const DATA = self.htmlWebpackPlugin.options.DATA
+
+doctype html
+html(lang="en" dir="ltr")
+
+	include ./includes/head.pug
+
+	head
+		+head(DATA)
+
+	body
+		nav.nav
+			ul
+				li
+					a(href='./eyes-on-the-price.html', title='Eyes On The Price') Eyes On The Price
