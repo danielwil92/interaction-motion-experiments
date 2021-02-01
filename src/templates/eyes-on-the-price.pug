@@ -10,4 +10,10 @@ html(lang="en" dir="ltr")
 		+head(DATA)
 
 	body
-		h1 ABOUT ME
+		section.follow-ball
+			- let n = 0;
+			span.ball
+			ul.follow-ball__wrapper
+				while n < 9
+					li.follow-ball__container
+						span(class=Math.floor(9 / 2) === n ? "follow-ball__square--no-follow" : "follow-ball__square")= n++
