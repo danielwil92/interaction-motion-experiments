@@ -3,11 +3,17 @@ import '../scss/eyes-on-the-price.scss';
 
 /**
  * Selectors
- * @enum {string}
+ * @enum {string|Object<Object<string>>}
  */
 const SELECTORS = {
   BALL: '.ball',
   WRAPPER: '.follow-ball',
+  INFORMATIVE: {
+    COORDINATES: {
+      X: '.informative__coordinate--x span',
+      Y: '.informative__coordinate--y span',
+    },
+  },
 };
 
 /**
@@ -21,6 +27,12 @@ const EASING = {
   inOutQuint: (t) => (t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t), // eslint-disable-line no-plusplus, no-param-reassign, max-len
   linear: (t) => t,
 };
+
+/**
+ * Configuration
+ * @enum {Object}
+ */
+const CARTESIAN_PLANE = {};
 
 /**
  * Configuration
@@ -48,6 +60,63 @@ let recordMovement = [];
 const $wrapper = document.querySelector(SELECTORS.WRAPPER);
 /** @type {HTMLElement} */
 const $ball = document.querySelector(SELECTORS.BALL);
+/** @type {Object<Object<HTMLElement>>} */
+const $informative = {
+  COORDINATES: {
+    X: document.querySelector(SELECTORS.INFORMATIVE.COORDINATES.X),
+    Y: document.querySelector(SELECTORS.INFORMATIVE.COORDINATES.Y),
+  },
+};
+
+/**
+ * Create a Cartesian so I am able to determine the position of the ball
+ */
+function createCartesianPlane() {
+  const { width, height } = $wrapper.getBoundingClientRect();
+
+  CARTESIAN_PLANE.center = {
+    X: Math.min(width / 2),
+    Y: Math.min(height / 2),
+  };
+
+  /**
+   * Calculates the coordinates in X.
+   *
+   * @param {number} coordinate
+   * @return {number}
+   */
+  const getCoordinateX = (coordinate) => {
+    const axisCenter = CARTESIAN_PLANE.center.X;
+
+    return coordinate > axisCenter ? coordinate - axisCenter : (axisCenter - coordinate) * -1;
+  };
+
+  /**
+   * Calculates the coordinates in Y.
+   *
+   * @param {number} coordinate
+   * @return {number}
+   */
+  const getCoordinateY = (coordinate) => {
+    const axisCenter = CARTESIAN_PLANE.center.Y;
+
+    return coordinate > axisCenter ? (coordinate - axisCenter) * -1 : axisCenter - coordinate;
+  };
+
+  CARTESIAN_PLANE.transformPositionIntoCoordinate = (coordinateX, coordinateY) => {
+    const coordinates = {
+      coordinateX: getCoordinateX(coordinateX),
+      coordinateY: getCoordinateY(coordinateY),
+    };
+
+    const { X, Y } = $informative.COORDINATES;
+
+    X.innerText = coordinates.coordinateX;
+    Y.innerText = coordinates.coordinateY;
+
+    return coordinates;
+  };
+}
 
 /**
  * Makes the ball follow the mouse
@@ -63,11 +132,16 @@ function stopFollowMovement() {
 /**
  * Animation Facade
  *
- * @param index
- * @param animation
+ * @param {number} left
+ * @param {number} top
  * @return {boolean}
  */
-function moveBall(index, animation) {
+function moveBall(left, top) {
+  $ball.style.setProperty('--ball-left-position', `${left}px`);
+  $ball.style.setProperty('--ball-top-position', `${top}px`);
+}
+
+function followMovement(index, animation) {
   if (!recordMovement[index]) return true;
 
   let { x, y } = recordMovement[index];
@@ -77,8 +151,8 @@ function moveBall(index, animation) {
     y *= Math.min(animation, 1);
   }
 
-  $ball.style.left = `${x}px`;
-  $ball.style.top = `${y}px`;
+  moveBall(x, y);
+  CARTESIAN_PLANE.transformPositionIntoCoordinate(x, y);
 
   return false;
 }
@@ -101,7 +175,7 @@ function animateBallMovement() {
     const runtime = time - start;
     const relativeProgress = CONF.EASING(runtime / CONF.BALL.DURATION);
 
-    stop = moveBall(counter, relativeProgress);
+    stop = followMovement(counter, relativeProgress);
 
     requestAnimationFrame(nextFrame);
   };
@@ -134,6 +208,5 @@ function followBall(event) {
   }
 }
 
-$wrapper.addEventListener('mousemove', (event) => {
-  followBall(event);
-});
+createCartesianPlane();
+$wrapper.addEventListener('mousemove', followBall);
