@@ -75,7 +75,8 @@ const $informative = {
 };
 
 /**
- * Create a Cartesian so I am able to determine the position of the ball
+ * Create a Cartesian Plane so the component is able to determine the position of the ball and
+ * the squares, and calculates the rotation based on each center
  */
 function createCartesianPlane() {
   const { width, height } = $wrapper.getBoundingClientRect();
@@ -125,6 +126,9 @@ function createCartesianPlane() {
 }
 
 /**
+ * Calculates cartesian position of each element and its row position
+ * to be used later on the calculations of followBall
+ *
  * @param {HTMLElement} element
  */
 function getCartesianPlanePosition(element) {
@@ -158,6 +162,11 @@ function getCartesianPlanePosition(element) {
   };
 }
 
+/**
+ * Calculates the rotation based on elements center
+ *
+ * @param {number} coordinate
+ */
 function getRotation(coordinate) {
   const axisPercentageMovement = (Math.abs(coordinate) * 100) / CARTESIAN_PLANE.center.X;
   const degMovement = (90 * axisPercentageMovement) / 100;
@@ -165,25 +174,19 @@ function getRotation(coordinate) {
   return coordinate > 0 ? degMovement : degMovement * -1;
 }
 
+/**
+ * Animation for each square so each looks At the ball
+ *
+ * @param coordinateX
+ * @param coordinateY
+ */
 function lookAtTheBall(coordinateX, coordinateY) {
   $wrapper.style.setProperty('--rotate-Y', `${getRotation(coordinateX)}deg`);
   $wrapper.style.setProperty('--rotate-X', `${getRotation(coordinateY)}deg`);
 }
 
 /**
- * Makes the ball follow the mouse
- */
-function stopFollowMovement() {
-  console.log(squares);
-  const { x, y } = recordMovement.slice(-1)[0];
-
-  recordMovement = [{ x, y }];
-  isMoving = false;
-  console.log('stop animating!'); // eslint-disable-line no-console
-}
-
-/**
- * Animation Facade
+ * Updates the css variables so the ball starts moving
  *
  * @param {number} left
  * @param {number} top
@@ -194,6 +197,15 @@ function moveBall(left, top) {
   $ball.style.setProperty('--ball-top-position', `${top}px`);
 }
 
+/**
+ * Moves the ball and makes squares follow the moments.
+ * Return indicates if the animation should stop or continue
+ *
+ * @param {number} index - in Array
+ * @param {number} animation - milliseconds
+ *
+ * @return {boolean}
+ */
 function followMovement(index, animation) {
   if (!recordMovement[index]) return true;
 
@@ -210,10 +222,23 @@ function followMovement(index, animation) {
   const { coordinateX, coordinateY } = CARTESIAN_PLANE.transformPositionIntoCoordinate(x, y);
   // Make Them Look at the Ball
   lookAtTheBall(coordinateX, coordinateY);
+
   return false;
 }
 
-function animateBallMovement() {
+/**
+ * Stops the animation Follow ball animations
+ * and sets its final state as the initial state for the next animation
+ */
+function stopFollowMovement() {
+  const { x, y } = recordMovement.slice(-1)[0];
+
+  recordMovement = [{ x, y }];
+  isMoving = false;
+  console.log('stop animating!'); // eslint-disable-line no-console
+}
+
+function followBallMovement() {
   // flags for animation loop
   let stop = false;
   let start = null;
@@ -260,10 +285,11 @@ function followBall(event) {
 
     console.log('start animating!'); // eslint-disable-line no-console
 
-    animateBallMovement();
+    followBallMovement();
   }
 }
 
 createCartesianPlane();
+// eslint-disable-next-line no-unused-vars
 squares = $squares.map(getCartesianPlanePosition);
 $wrapper.addEventListener('mousemove', followBall);
