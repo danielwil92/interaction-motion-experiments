@@ -45,6 +45,8 @@ section {
   height: 100vh;
   position: relative;
   width: 100vw;
+  --rotate-X: 0deg;
+  --rotate-Y: 0deg;
 
   &--show-cartisian {
 
@@ -87,6 +89,7 @@ section {
     min-height: 100%;
     text-align: center;
     vertical-align: middle;
+    transform: rotateY(var(--rotate-Y)) rotateX(var(--rotate-X));
     width: 100%;
 
     &--no-follow {
