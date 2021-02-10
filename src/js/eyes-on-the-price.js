@@ -8,6 +8,7 @@ import '../scss/eyes-on-the-price.scss';
 const SELECTORS = {
   BALL: '.ball',
   WRAPPER: '.follow-ball',
+  SQUARE: '.follow-ball__square',
   INFORMATIVE: {
     COORDINATES: {
       X: '.informative__coordinate--x span',
@@ -60,6 +61,11 @@ let recordMovement = [];
 const $wrapper = document.querySelector(SELECTORS.WRAPPER);
 /** @type {HTMLElement} */
 const $ball = document.querySelector(SELECTORS.BALL);
+/** @type {Array<HTMLElement>} */
+const $squares = [...document.querySelectorAll(SELECTORS.SQUARE)];
+/** @type {Array<Object>} */
+let squares = [];
+
 /** @type {Object<Object<HTMLElement>>} */
 const $informative = {
   COORDINATES: {
@@ -119,9 +125,56 @@ function createCartesianPlane() {
 }
 
 /**
+ * @param {HTMLElement} element
+ */
+function getCartesianPlanePosition(element) {
+  const {
+    width, height, top, left,
+  } = element.getBoundingClientRect();
+  const positionX = (width / 2) + left;
+  const positionY = (height / 2) + top;
+  let row;
+
+  switch (true) {
+    case CARTESIAN_PLANE.center.Y === positionY:
+      row = 2;
+      break;
+    case CARTESIAN_PLANE.center.Y > positionY:
+      row = 1;
+      break;
+    case CARTESIAN_PLANE.center.Y < positionY:
+      row = 3;
+      break;
+    default:
+      break;
+  }
+
+  return {
+    element,
+    row,
+    cartesian: {
+      center: CARTESIAN_PLANE.transformPositionIntoCoordinate(positionX, positionY),
+    },
+  };
+}
+
+function getRotation(coordinate) {
+  const axisPercentageMovement = (Math.abs(coordinate) * 100) / CARTESIAN_PLANE.center.X;
+  const degMovement = (90 * axisPercentageMovement) / 100;
+
+  return coordinate > 0 ? degMovement : degMovement * -1;
+}
+
+function lookAtTheBall(coordinateX, coordinateY) {
+  $wrapper.style.setProperty('--rotate-Y', `${getRotation(coordinateX)}deg`);
+  $wrapper.style.setProperty('--rotate-X', `${getRotation(coordinateY)}deg`);
+}
+
+/**
  * Makes the ball follow the mouse
  */
 function stopFollowMovement() {
+  console.log(squares);
   const { x, y } = recordMovement.slice(-1)[0];
 
   recordMovement = [{ x, y }];
@@ -151,9 +204,12 @@ function followMovement(index, animation) {
     y *= Math.min(animation, 1);
   }
 
+  // Move Fall
   moveBall(x, y);
-  CARTESIAN_PLANE.transformPositionIntoCoordinate(x, y);
-
+  // Calculate Ball Position in Cartesian Plane
+  const { coordinateX, coordinateY } = CARTESIAN_PLANE.transformPositionIntoCoordinate(x, y);
+  // Make Them Look at the Ball
+  lookAtTheBall(coordinateX, coordinateY);
   return false;
 }
 
@@ -209,4 +265,5 @@ function followBall(event) {
 }
 
 createCartesianPlane();
+squares = $squares.map(getCartesianPlanePosition);
 $wrapper.addEventListener('mousemove', followBall);
