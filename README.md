@@ -1,6 +1,5 @@
 
 # Hello there! 👋🏽
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 Dive in into a series of experiments with Animation and motion done with Javascript and CSS.
 
 ## Exercises
