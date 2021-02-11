@@ -9,14 +9,15 @@ html(lang="en" dir="ltr")
   head
     +head(DATA)
 
+  //- Add .debug if you want to see the values of the ball and the rotation
   body
     div.informative
-      p.informative__coordinate.informative__coordinate--x= 'Coordinate X: '
+      p.informative__coordinate.informative__coordinate--x= 'Ball Coordinate X: '
         span
-      p.informative__coordinate.informative__coordinate--y= 'Coordinate Y: '
+      p.informative__coordinate.informative__coordinate--y= 'Ball Coordinate Y: '
         span
 
-    section.follow-ball.follow-ball--show-cartisian
+    section.follow-ball
       - let n = 0;
       span.ball
       ul.follow-ball__wrapper
