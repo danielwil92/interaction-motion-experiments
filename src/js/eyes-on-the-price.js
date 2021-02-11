@@ -1,6 +1,9 @@
 // shared module
 import '../scss/eyes-on-the-price.scss';
 
+/** @type {boolean} */
+const debug = document.querySelector('body').classList.contains('debug');
+
 /**
  * Selectors
  * @enum {string|Object<Object<string>>}
@@ -37,13 +40,25 @@ const CARTESIAN_PLANE = {};
 
 /**
  * Configuration
- * @enum {number|function(number):number}
+ * @enum {number|function(number):number|Object<number|string>}
  */
 const CONF = {
+  ANIMATION_EASING: EASING.linear, // Change to see a different animation flow. Ref EASING.
   BALL: {
-    DURATION: 1000,
+    DURATION: 1000, // More than one 1000 will no take effect
+    RESISTANCE: 100, // How much should the callback wait until it follows the ball
+    CSS_VARIABLE: {
+      LEFT: '--ball-left-position',
+      TOP: '--ball-top-position',
+    },
   },
-  EASING: EASING.linear,
+  SQUARE: {
+    CONSTRAIN: 0.15, // MUST BE SET DEPENDING ON THE ELEMENTS PARENTS PERSPECTIVE - Set by the CSS
+    CSS_VARIABLE: {
+      X: '--rotate-X',
+      Y: '--rotate-Y',
+    },
+  },
 };
 
 /**
@@ -79,11 +94,11 @@ const $informative = {
  * the squares, and calculates the rotation based on each center
  */
 function createCartesianPlane() {
-  const { width, height } = $wrapper.getBoundingClientRect();
+  const { height } = $wrapper.getBoundingClientRect();
 
   CARTESIAN_PLANE.center = {
-    X: Math.min(width / 2),
-    Y: Math.min(height / 2),
+    X: 0,
+    Y: height,
   };
 
   /**
@@ -116,10 +131,12 @@ function createCartesianPlane() {
       coordinateY: getCoordinateY(coordinateY),
     };
 
-    const { X, Y } = $informative.COORDINATES;
+    if (debug) {
+      const { X, Y } = $informative.COORDINATES;
 
-    X.innerText = coordinates.coordinateX;
-    Y.innerText = coordinates.coordinateY;
+      X.innerText = coordinates.coordinateX;
+      Y.innerText = coordinates.coordinateY;
+    }
 
     return coordinates;
   };
@@ -137,25 +154,9 @@ function getCartesianPlanePosition(element) {
   } = element.getBoundingClientRect();
   const positionX = (width / 2) + left;
   const positionY = (height / 2) + top;
-  let row;
-
-  switch (true) {
-    case CARTESIAN_PLANE.center.Y === positionY:
-      row = 2;
-      break;
-    case CARTESIAN_PLANE.center.Y > positionY:
-      row = 1;
-      break;
-    case CARTESIAN_PLANE.center.Y < positionY:
-      row = 3;
-      break;
-    default:
-      break;
-  }
 
   return {
     element,
-    row,
     cartesian: {
       center: CARTESIAN_PLANE.transformPositionIntoCoordinate(positionX, positionY),
     },
@@ -163,26 +164,41 @@ function getCartesianPlanePosition(element) {
 }
 
 /**
- * Calculates the rotation based on elements center
+ * Calculates the rotation based on the square center and the ball position
  *
- * @param {number} coordinate
+ * @param {Object<number>} ballCoordinate
+ * @param {Object<number>} squareCenterCoordinate
  */
-function getRotation(coordinate) {
-  const axisPercentageMovement = (Math.abs(coordinate) * 100) / CARTESIAN_PLANE.center.X;
-  const degMovement = (90 * axisPercentageMovement) / 100;
-
-  return coordinate > 0 ? degMovement : degMovement * -1;
+function getRotation(ballCoordinate, squareCenterCoordinate) {
+  return {
+    rotateX: (ballCoordinate.coordinateY - squareCenterCoordinate.coordinateY) * (CONF.SQUARE.CONSTRAIN * -1), // eslint-disable-line max-len
+    rotateY: (ballCoordinate.coordinateX - squareCenterCoordinate.coordinateX) * (CONF.SQUARE.CONSTRAIN * -1), // eslint-disable-line max-len
+  };
 }
 
 /**
- * Animation for each square so each looks At the ball
+ * Animation for each square so each one "looks" At the ball
  *
- * @param coordinateX
- * @param coordinateY
+ * @param {number} coordinateX
+ * @param {number} coordinateY
  */
 function lookAtTheBall(coordinateX, coordinateY) {
-  $wrapper.style.setProperty('--rotate-Y', `${getRotation(coordinateX)}deg`);
-  $wrapper.style.setProperty('--rotate-X', `${getRotation(coordinateY)}deg`);
+  const { X, Y } = CONF.SQUARE.CSS_VARIABLE;
+
+  // eslint-disable-next-line array-callback-return
+  squares.map((square) => {
+    const { element, cartesian } = square;
+    const { rotateX, rotateY } = getRotation({ coordinateX, coordinateY }, cartesian.center);
+
+    element.style.setProperty(X, `${rotateX}deg`);
+    element.style.setProperty(Y, `${rotateY}deg`);
+
+    if (debug) {
+      element.innerText = `
+        ${X}, ${rotateX}
+        ${Y}, ${rotateY}`;
+    }
+  });
 }
 
 /**
@@ -193,8 +209,8 @@ function lookAtTheBall(coordinateX, coordinateY) {
  * @return {boolean}
  */
 function moveBall(left, top) {
-  $ball.style.setProperty('--ball-left-position', `${left}px`);
-  $ball.style.setProperty('--ball-top-position', `${top}px`);
+  $ball.style.setProperty(CONF.BALL.CSS_VARIABLE.LEFT, `${left}px`);
+  $ball.style.setProperty(CONF.BALL.CSS_VARIABLE.TOP, `${top}px`);
 }
 
 /**
@@ -212,8 +228,8 @@ function followMovement(index, animation) {
   let { x, y } = recordMovement[index];
 
   if (animation < 0) {
-    x *= Math.min(animation, 1);
-    y *= Math.min(animation, 1);
+    x *= Math.abs(animation);
+    y *= Math.abs(animation);
   }
 
   // Move Fall
@@ -235,7 +251,6 @@ function stopFollowMovement() {
 
   recordMovement = [{ x, y }];
   isMoving = false;
-  console.log('stop animating!'); // eslint-disable-line no-console
 }
 
 function followBallMovement() {
@@ -254,7 +269,7 @@ function followBallMovement() {
     }
 
     const runtime = time - start;
-    const relativeProgress = CONF.EASING(runtime / CONF.BALL.DURATION);
+    const relativeProgress = CONF.ANIMATION_EASING(runtime / CONF.BALL.DURATION);
 
     stop = followMovement(counter, relativeProgress);
 
@@ -283,9 +298,7 @@ function followBall(event) {
   if (!isMoving) {
     isMoving = true;
 
-    console.log('start animating!'); // eslint-disable-line no-console
-
-    followBallMovement();
+    setTimeout(followBallMovement, CONF.BALL.RESISTANCE);
   }
 }
 
