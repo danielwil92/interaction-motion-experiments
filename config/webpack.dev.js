@@ -6,7 +6,7 @@ const { cssLoaders } = require('./util');
 // Configure Dev Server
 const configureDevServer = () => ({
   contentBase: './src',
-  open: true,
+  open: false,
   port: 3000,
   inline: true,
   stats: 'errors-only',
