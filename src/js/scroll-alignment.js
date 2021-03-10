@@ -1,21 +1,56 @@
 import '../scss/scroll-alignment.scss';
-import * as ScrollMagic from 'scrollmagic';
-import { TweenMax, TimelineMax } from 'gsap';
-import { ScrollMagicPluginGsap, ScrollMagicPluginIndicator } from 'scrollmagic-plugins';
+import { gsap } from 'gsap/all';
 
-// Add plugins
-ScrollMagicPluginIndicator(ScrollMagic);
-ScrollMagicPluginGsap(ScrollMagic, TweenMax, TimelineMax);
+const SELECTORS = {
+  START: '.intro',
+  DOT: '.word__ball',
+};
 
-// init controller
-const controller = new ScrollMagic.Controller();
+const CONFIG = {
+  MAX_BALL_SCALE: 70,
+};
 
-new ScrollMagic.Scene({ triggerElement: '.start-sphere', duration: 1000, offset: 700 })
-  .setPin('.pin')
-  .addIndicators({ name: '1 (duration: 0)' }) // add indicators (requires plugin)
-  .addTo(controller);
+const $start = document.querySelector(SELECTORS.START);
+const circleSpeed = 0.3;
 
-new ScrollMagic.Scene({ triggerElement: '.start-sphere', duration: 500, offset: 700 })
-  .setTween('.sphere', 0.5, { scale: 0.050 }) // the tween duration can be omitted and defaults to 1
-  .addIndicators({ name: '1 (duration: 0)' }) // add indicators (requires plugin)
-  .addTo(controller);
+function calculateDotScale(scrollAmount) {
+  // Animation Percentaje
+  const percentageScrolled = ((scrollAmount * 100) / CONFIG.START_ANIMATION.FINISH)
+    .toFixed(3);
+  // How much has passed of the max
+  const prevScale = (percentageScrolled * CONFIG.MAX_BALL_SCALE) / 100;
+
+  // Revert 100% is 1 and 0% is CONFIG.MAX_BALL_SCALE
+  return (CONFIG.MAX_BALL_SCALE - prevScale) + 1;
+}
+
+function animateDot(scrollAmount) {
+  return gsap.to(
+    SELECTORS.DOT,
+    {
+      duration: circleSpeed,
+      scale: calculateDotScale(scrollAmount),
+    },
+  );
+}
+
+function animateOnScroll() {
+  const scrollAmount = window.pageYOffset + (window.innerHeight / 2);
+
+  if (scrollAmount > CONFIG.START_ANIMATION.START
+    && scrollAmount < CONFIG.START_ANIMATION.FINISH) {
+    animateDot(scrollAmount);
+  }
+}
+
+function getBoundaries() {
+  const { height } = $start.getBoundingClientRect();
+
+  CONFIG.START_ANIMATION = {
+    START: height,
+    FINISH: height + 1000,
+  };
+}
+
+getBoundaries();
+window.addEventListener('scroll', animateOnScroll);

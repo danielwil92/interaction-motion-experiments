@@ -7,9 +7,19 @@ html(lang="en" dir="ltr")
 
   head
     +head(DATA)
+    link(rel='preconnect' href='https://fonts.gstatic.com')
+    link(href='https://fonts.googleapis.com/css2?family=Dynalight&display=swap' rel='stylesheet')
 
   body
-    .intro
-      .start-sphere
-        .pin
-          .sphere
+    section.intro
+    .pin-wrapper
+      .sphere
+      - let word = 'Alıgment'.split('');
+      h1.word
+        each character in word
+          if character === 'ı'
+            span.word__character.word__character--wrapper
+              span.word__single= character
+              span.word__ball
+          else
+            span.word__character= character

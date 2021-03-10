@@ -82,9 +82,6 @@
     "workbox-webpack-plugin": "^6.0.2"
   },
   "dependencies": {
-    "gsap": "^3.6.0",
-    "scrollmagic": "^2.0.8",
-    "scrollmagic-plugin-gsap": "^1.0.4",
-    "scrollmagic-plugins": "^1.0.8"
+    "gsap": "^3.6.0"
   }
 }

@@ -1,10 +1,23 @@
-$sphere: 75%;
+$sphere: 500px;
 
 body {
   color: #fff;
   margin: 0;
-  height: 200vh;
+  min-height: 500vh;
   background-color: #181717;
+  font-family: "Dynalight", cursive;
+
+  &:before {
+    border-bottom: 1px solid red;
+    content: "Animation Trigger";
+    height: 1px;
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translate3d(0, -50%, 0);
+    width: 50px;
+    z-index: 99999;
+  }
 }
 
 section {
@@ -13,22 +26,51 @@ section {
 
 .intro {
   background-color: #ffffff;
-}
-
-.intro {
+  height: 60vh;
   position: relative;
 }
 
-.start-sphere {
-  padding-top: 10vh;
-  height: 60vh;
+.ball-animation {
+  height: 100vh;
 }
 
-.sphere {
-  background-color: #fff;
-  border-radius: 50%;
-  display: block;
-  margin-left: -5%;
-  width: $sphere;
-  padding-top: $sphere;
+.pin-wrapper {
+  height: 300vh;
+  position: fixed;
+  width: 100%;
+}
+
+.word {
+  color: #ffffff;
+  font-size: 20vw;
+  letter-spacing: 2vw;
+  //opacity: 0;
+  margin: 0;
+  text-align: center;
+  width: 100%;
+
+  &__single,
+  &__character {
+    opacity: 0;
+  }
+
+  &__character {
+    position: relative;
+    display: inline-block;
+
+    &--wrapper {
+      opacity: 1;
+    }
+  }
+
+  &__ball {
+    background-color: #ffffff;
+    border-radius: 50%;
+    display: block;
+    margin-left: 30px;
+    height: 30px;
+    position: absolute;
+    top: 32%;
+    width: 30px;
+  }
 }
