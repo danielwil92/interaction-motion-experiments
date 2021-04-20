@@ -7,6 +7,7 @@ const OUTPUT_DIR = 'docs';
 const config = [
   { site: 'index'},
   { site: 'eyes-on-the-price'},
+  { site: 'asset-control'},
 ];
 
 // configure Resolve
@@ -57,6 +58,9 @@ module.exports = {
     },
     'eyes-on-the-price': {
       import: './src/js/eyes-on-the-price.js',
+    },
+    'asset-control': {
+      import: './src/js/asset-control.js',
     },
   },
   output: configureOutput(),

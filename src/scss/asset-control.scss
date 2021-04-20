@@ -1,0 +1,24 @@
+.input {
+  bottom: 2.5%;
+  position: fixed;
+  right: 1.5%;
+}
+
+
+.animation {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  width: 600px;
+  height: 600px;
+  overflow: hidden;
+
+  img {
+    width: 8400px;
+    height: 11400px;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}

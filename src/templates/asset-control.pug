@@ -1,0 +1,15 @@
+block variables
+- var DATA = self.htmlWebpackPlugin.options.DATA
+
+doctype html
+html(lang="en" dir="ltr")
+
+  include ./includes/head.pug
+
+  head
+    +head(DATA)
+
+  //- Add .debug if you want to see the values of the ball and the rotation
+  body
+    div.animation
+    input.input(type='range' name='volume' min='0' max='246' data-sprites-per-row='14' value=0)
